@@ -2,7 +2,7 @@
   "extends": ["airbnb-base", "plugin:jest/recommended", "prettier"],
   "plugins": ["prettier", "jest", "no-async-without-await"],
   "rules": {
-    "no-console": "error",
+    "no-console": "warn",
     "no-async-without-await/no-async-without-await": "error",
     "no-await-in-loop": "off",
     "no-continue": "off",
