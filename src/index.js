@@ -1,27 +1,36 @@
-const Candlestick = require('./model/candlestick')
 const BinanceWebSocket = require('./connection/binance_websocket')
+const botConfig = require('../bot_conf.json')
+const config = require('../conf.json')
 
-//Configuration
-const URL = 'wss://stream.binance.com:9443'
+//Validar config symbols, devem ser minusculos os pares
+//--
+const ws = new BinanceWebSocket(config.binanceWebSocketUrl, botConfig.symbols, botConfig.rsi.interval)
 
-const candlesticks = []
-candlesticks.push(new Candlestick('ethusdt', '1m'))
-candlesticks.push(new Candlestick('btcusdt', '1m'))
-candlesticks.push(new Candlestick('adausdt', '1m'))
-
-const ws = new BinanceWebSocket(URL, candlesticks)
-
-//------
+const symbolCloses = new Map()
+botConfig.symbols.forEach(symbol => symbolCloses.set(symbol, []))
 
 ws.onopen = () => {
-
+    console.log('Initializing connection with binance websocket...')
 }
 
 ws.onmessage = (event) => {
     const message = JSON.parse(event.data)
-    console.log(message.stream)
+    const candlestick = message.data.k
+    const isCandleClosed = candlestick.x
+
+    if(isCandleClosed){        
+        const symbol = candlestick.s.toLowerCase()
+        const closePrice = candlestick.c
+
+        const closes = symbolCloses.get(symbol)
+        closes.push(parseFloat(closePrice))
+        symbolCloses.set(symbol, closes)
+
+        console.log(symbolCloses)
+    }
+    
 }
 
 ws.onclose = () => {
-
+    console.log('connection closed...')
 }

@@ -2,15 +2,15 @@ const WebSocket = require('ws')
 
 module.exports = class BinanceWebSocket {
     
-    constructor(url, candlesticks) {
-        const formattedURL = this.getFormattedURL(url, candlesticks)
+    constructor(url, symbols, interval) {
+        const formattedURL = this.getFormattedURL(url, symbols, interval)
         return new WebSocket(formattedURL)
     }
 
-    getFormattedURL(url, candlesticks) {
+    getFormattedURL(url, symbols, interval) {
         url += '/stream?streams='
-        candlesticks.forEach(candlestick => {
-            url += `${candlestick.symbol}@kline_${candlestick.interval}/` 
+        symbols.forEach(symbol => {
+            url += `${symbol}@kline_${interval}/` 
         });
         return url.slice(0, -1)
     }

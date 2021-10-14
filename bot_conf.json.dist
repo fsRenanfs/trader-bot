@@ -1,0 +1,14 @@
+{
+    "tradeValue": "0.01",
+    "profit": "1.5",
+    "symbols":[
+       "btcusdt",
+       "ethusdt",
+       "adausdt"
+    ],
+    "rsi": {
+        "oversold": 100,
+        "period": 7,
+        "interval": "1m"
+    }
+ }
