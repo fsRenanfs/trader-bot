@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 const WebSocket = require('ws');
 
 module.exports = class BinanceWebSocket {
@@ -7,7 +6,7 @@ module.exports = class BinanceWebSocket {
     return new WebSocket(formattedURL);
   }
 
-  static getFormattedURL(url, symbols, interval) {
+  getFormattedURL(url, symbols, interval) {
     url += '/stream?streams=';
     symbols.forEach(symbol => {
       url += `${symbol}@kline_${interval}/`;

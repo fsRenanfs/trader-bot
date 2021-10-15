@@ -1,10 +1,9 @@
-const talib = require('talib');
 const BinanceWebSocket = require('./connection/binance_websocket');
+const CandleEvent = require('./model/candle_event');
 const botConfig = require('../bot_conf.json');
 const config = require('../conf.json');
+const { RSI } = require('./utils/indicators');
 
-// Validar config symbols, devem ser minusculos os pares
-//--
 const ws = new BinanceWebSocket(
   config.binanceWebSocketUrl,
   botConfig.symbols,
@@ -19,24 +18,21 @@ ws.onopen = () => {
 };
 
 ws.onmessage = event => {
-  const message = JSON.parse(event.data);
-  const candlestick = message.data.k;
-  const isCandleClosed = candlestick.x;
+  const candleEvent = new CandleEvent(event);
 
-  if (isCandleClosed) {
-    const symbol = candlestick.s.toLowerCase();
-    const closePrice = candlestick.c;
-
-    const closes = symbolCloses.get(symbol);
-    closes.push(parseFloat(closePrice));
-    symbolCloses.set(symbol, closes);
+  if (candleEvent.isCandleClosed) {
+    const closes = symbolCloses.get(candleEvent.symbol);
+    closes.push(parseFloat(candleEvent.closePrice));
+    symbolCloses.set(candleEvent.symbol, closes);
 
     console.log(symbolCloses);
-    console.log(closes.lenght);
 
-    if (closes.lenght > botConfig.rsi.period) {
-      const rsi = talib.RSI(closes, botConfig.rsi.period);
-      console.log(`${symbol} rsi - ${botConfig.rsi.period}  ${botConfig.rsi.interval}: ${rsi}`);
+    if (closes.length > botConfig.rsi.period) {
+      console.log('Calculating RSI...');
+      const rsi = RSI(closes, botConfig.rsi.period);
+      console.log(
+        `${candleEvent.symbol} rsi - ${botConfig.rsi.period}  ${botConfig.rsi.interval}: ${rsi}`,
+      );
     }
   }
 };
