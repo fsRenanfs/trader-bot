@@ -1,5 +1,7 @@
+const BinanceApi = require('./connection/binance_api');
 const BinanceWebSocket = require('./connection/binance_websocket');
 const CandleEvent = require('./model/candle_event');
+const ClosesBuffer = require('./model/closes_buffer');
 const botConfig = require('../bot_conf.json');
 const config = require('../conf.json');
 const { RSI } = require('./utils/indicators');
@@ -10,8 +12,7 @@ const ws = new BinanceWebSocket(
   botConfig.rsi.interval,
 );
 
-const symbolCloses = new Map();
-botConfig.symbols.forEach(symbol => symbolCloses.set(symbol, []));
+const closesBuffer = new ClosesBuffer(botConfig.symbols);
 
 ws.onopen = () => {
   console.log('Initializing connection with binance websocket...');
@@ -21,13 +22,11 @@ ws.onmessage = event => {
   const candleEvent = new CandleEvent(event);
 
   if (candleEvent.isCandleClosed) {
-    const closes = symbolCloses.get(candleEvent.symbol);
-    closes.push(parseFloat(candleEvent.closePrice));
-    symbolCloses.set(candleEvent.symbol, closes);
+    closesBuffer.push(candleEvent.symbol, candleEvent.closePrice);
 
-    console.log(symbolCloses);
+    console.log(closesBuffer.get(candleEvent.symbol));
 
-    if (closes.length > botConfig.rsi.period) {
+    if (closesBuffer.length(candleEvent.symbol) > botConfig.rsi.period) {
       console.log('Calculating RSI...');
       const rsi = RSI(closes, botConfig.rsi.period);
       console.log(
