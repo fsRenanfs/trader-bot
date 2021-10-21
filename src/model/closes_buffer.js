@@ -2,7 +2,7 @@ module.exports = class ClosesBuffer {
   constructor(symbols, bufferSize = 60) {
     this.symbolCloses = new Map();
     this.bufferSize = bufferSize;
-    symbols.forEach(symbol => this.symbolCloses.set(symbol, []));
+    symbols.forEach(symbol => this.symbolCloses.set(symbol.toUpperCase(), []));
   }
 
   push(symbol, closePrice) {

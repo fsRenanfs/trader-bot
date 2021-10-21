@@ -9,7 +9,7 @@ module.exports = class BinanceWebSocket {
   getFormattedURL(url, symbols, interval) {
     url += '/stream?streams=';
     symbols.forEach(symbol => {
-      url += `${symbol}@kline_${interval}/`;
+      url += `${symbol.toLowerCase()}@kline_${interval}/`;
     });
     return url.slice(0, -1);
   }

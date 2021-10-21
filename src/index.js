@@ -11,7 +11,7 @@ const ws = new BinanceWebSocket(
   botConfig.symbols,
   botConfig.rsi.interval,
 );
-
+//New bot voa
 const closesBuffer = new ClosesBuffer(botConfig.symbols);
 
 ws.onopen = () => {
@@ -22,16 +22,23 @@ ws.onmessage = event => {
   const candleEvent = new CandleEvent(event);
 
   if (candleEvent.isCandleClosed) {
-    closesBuffer.push(candleEvent.symbol, candleEvent.closePrice);
+    const candleSymbol = candleEvent.symbol.toUpperCase();
+    closesBuffer.push(candleSymbol, candleEvent.closePrice);
 
-    console.log(closesBuffer.get(candleEvent.symbol));
+    console.log(`${candleSymbol}: ${closesBuffer.get(candleSymbol)}`);
 
-    if (closesBuffer.length(candleEvent.symbol) > botConfig.rsi.period) {
+    if (closesBuffer.length(candleSymbol) > botConfig.rsi.period) {
       console.log('Calculating RSI...');
+      const closes = closesBuffer.get(candleSymbol);
       const rsi = RSI(closes, botConfig.rsi.period);
+
       console.log(
-        `${candleEvent.symbol} rsi - ${botConfig.rsi.period}  ${botConfig.rsi.interval}: ${rsi}`,
+        `${candleSymbol} rsi - ${botConfig.rsi.period}  ${botConfig.rsi.interval}: ${rsi}`,
       );
+
+      if (rsi < botConfig.rsi.oversold) {
+        //BUY
+      }
     }
   }
 };
