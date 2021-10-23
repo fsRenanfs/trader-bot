@@ -13,7 +13,6 @@ module.exports = class BinanceApi {
 
   async marketOrder(symbol, side, quantity) {
     try {
-      console.log(side);
       const order = await this.binance.order({
         symbol: symbol,
         side: side,
@@ -30,14 +29,19 @@ module.exports = class BinanceApi {
   }
 
   async buy(symbol, usdt) {
-    const prices = await this.binance.prices({ symbol: symbol });
     const quotePrecision = await this.quotePrecision(symbol);
+    const currentPrice = await this.currentPrice(symbol);
+    const minimumPrice = await this.minimumPrice(symbol);
 
-    const currentPrice = prices[symbol];
     const quantity = calculator.currencyQuantity(usdt, currentPrice);
     const formattedQuantity = calculator.roundFloor(quantity, quotePrecision);
-    //validar valor minimo permitido + 1 dol para garantir q tera uma brecha
-    console.log(`$$ ORDER: Buy ${formattedQuantity} of ${symbol} (${usdt} USDT)`);
+
+    if (usdt < minimumPrice)
+      throw binanceApiException(
+        `Minimum price must be greater than ${minimumPrice} for ${symbol} symbol.`,
+      );
+
+    console.log(`$$ ORDER: Buy ${formattedQuantity} of ${symbol} (${usdt} USDT)`); //informacoes da ordem, mais objeto da ordem
 
     const order = await this.marketOrder(symbol, binanceApiUtils.BUY, formattedQuantity);
 
@@ -47,6 +51,7 @@ module.exports = class BinanceApi {
 
   async sell(symbol, quantity) {
     const order = await this.marketOrder(symbol, binanceApiUtils.SELL, quantity);
+    console.log(order);
   }
 
   async allOrders(symbol) {
@@ -92,8 +97,14 @@ module.exports = class BinanceApi {
           minimumPriceData,
         )}`,
       );
+    const minimumPrice =
+      parseFloat(minimumPriceData.minNotional) + parseFloat(binanceApiUtils.MIN_PRICE_VARIATION);
+    return minimumPrice;
+  }
 
-    return minimumPriceData.minNotional;
+  async currentPrice(symbol) {
+    const prices = await this.binance.prices({ symbol: symbol });
+    return prices[symbol];
   }
 
   async quotePrecision(symbol) {

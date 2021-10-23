@@ -1,14 +1,19 @@
-{
+{   
     "tradeValue": "0.01",
     "profit": "1.5",
+    "interval": "1m",
     "symbols":[
-       "btcusdt",
-       "ethusdt",
-       "adausdt"
+       "BTCUSDT",
+       "ETHUSDT",
+       "SOLUSDT",
+       "BNBUSDT"
     ],
-    "rsi": {
-        "oversold": 100,
+
+    "strategy": {
+        "name":"rsi_strategy",
+        "smallerThan": 100,
         "period": 7,
         "interval": "1m"
     }
+     
  }
