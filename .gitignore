@@ -240,7 +240,6 @@ Temporary Items
 
 # Project config
 /.idea
-/bot_conf.json
 /instance.js
 /bot.db
 /bot.db-shm

@@ -46,7 +46,7 @@ module.exports = class BinanceApi {
     const order = await this.marketOrder(symbol, binanceApiUtils.BUY, formattedQuantity);
 
     console.log(`$$ ORDER COMPLETED`);
-    console.log(order);
+    return order;
   }
 
   async sell(symbol, quantity) {
