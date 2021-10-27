@@ -1,7 +1,7 @@
 const BinanceClient = require('binance-api-node').default;
-const calculator = require('../utils/calculator');
-const { binanceApiException } = require('../exceptions/exceptions');
-const { binanceApiUtils } = require('../utils/constants');
+const calculator = require('../../utils/calculator');
+const { binanceApiException } = require('../../exceptions/exceptions');
+const { binanceApiUtils } = require('../../utils/constants');
 
 module.exports = class BinanceApi {
   constructor(apikey, apiSecret) {
@@ -51,7 +51,7 @@ module.exports = class BinanceApi {
 
   async sell(symbol, quantity) {
     const order = await this.marketOrder(symbol, binanceApiUtils.SELL, quantity);
-    console.log(order);
+    return order;
   }
 
   async allOrders(symbol) {

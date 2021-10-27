@@ -1,12 +1,13 @@
+const WebSocket = require('ws');
 const BinanceWebSocket = require('./binance_websocket');
-const ClosesBuffer = require('../model/closes_buffer');
-const CandleEvent = require('../model/candle_event');
+const ClosesBuffer = require('../../model/closes_buffer');
+const CandleEvent = require('../../model/candle_event');
+const { binanceWSException } = require('../../exceptions/exceptions');
 
 module.exports = class BinanceWebSocketManager {
-  constructor(url, symbols, interval, strategyConfig) {
-    this.strategy = require(`../strategies/${strategyConfig.name}`);
+  constructor(symbols, interval, strategyConfig) {
+    this.strategy = require(`../../strategies/${strategyConfig.name}`);
 
-    this.url = url;
     this.symbols = symbols;
     this.interval = interval;
     this.strategyConfig = strategyConfig;
@@ -16,13 +17,22 @@ module.exports = class BinanceWebSocketManager {
   }
 
   start() {
-    this.binanceWS = new BinanceWebSocket(this.url, this.symbols, this.interval);
+    this.binanceWS = new BinanceWebSocket(this.symbols, this.interval);
     this.closesBuffer = new ClosesBuffer(this.symbols);
 
     this.binanceWS.onopen = this.onOpen();
     this.binanceWS.onmessage = event => this.onMessage(event);
     this.binanceWS.onerror = event => this.onError(event);
-    this.binanceWS.onclose = this.onClose();
+    this.binanceWS.onclose = event => this.onClose(event);
+  }
+
+  stop() {
+    this.binanceWS.close();
+  }
+
+  isRunning() {
+    const executingStatus = [WebSocket.OPEN, WebSocket.CONNECTING, WebSocket.CLOSING];
+    return executingStatus.includes(this.binanceWS.readyState);
   }
 
   onOpen() {
@@ -41,8 +51,10 @@ module.exports = class BinanceWebSocketManager {
   }
 
   onError(event) {
-    console.log(event.data); //colocar exception classe exceptions
+    throw binanceWSException(`Error event: ${event.data}`);
   }
 
-  onClose() {}
+  onClose(event) {
+    console.log('Closing connection with binance websocket...');
+  }
 };

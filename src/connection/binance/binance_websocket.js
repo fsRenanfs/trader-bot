@@ -1,8 +1,9 @@
+require('dotenv').config();
 const WebSocket = require('ws');
 
 module.exports = class BinanceWebSocket {
-  constructor(url, symbols, interval) {
-    const formattedURL = this.getFormattedURL(url, symbols, interval);
+  constructor(symbols, interval) {
+    const formattedURL = this.getFormattedURL(process.env.BINANCE_WS_URL, symbols, interval);
     return new WebSocket(formattedURL);
   }
 
