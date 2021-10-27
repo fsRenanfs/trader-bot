@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const { initializeApp } = require('firebase/app');
-const { getDatabase, ref, set } = require('firebase/database');
+const { getDatabase } = require('firebase/database');
 
 const config = {
   apiKey: process.env.FIREBASE_APP_API_KEY,
@@ -10,17 +10,7 @@ const config = {
   storageBucket: process.env.FIREBASE_APP_STORAGE_BUCKET,
 };
 
-const firebaseImpl = initializeApp(config);
-const firebaseDatabase = getDatabase();
+const app = initializeApp(config);
+const firebaseDatabase = getDatabase(app);
 
-const gravarTeste = () => {
-  const firebaseDatabase = getDatabase();
-  set(ref(firebaseDatabase, 'users/' + 'renan id'), {
-    username: 'renan',
-    email: 'rer@',
-    profile_picture: 'jpg',
-  });
-};
-
-gravarTeste();
-module.exports = { firebaseImpl, firebaseDatabase };
+module.exports = { firebaseDatabase };
